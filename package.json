@@ -1,0 +1,39 @@
+{
+  "name": "s3-tail-stream",
+  "version": "1.0.0",
+  "description": "Tail all the objects in an S3 bucket for log processing",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugeneware/s3-tail-stream"
+  },
+  "keywords": [
+    "log",
+    "s3",
+    "tail",
+    "stream",
+    "streaming",
+    "aws",
+    "bucket",
+    "logging"
+  ],
+  "author": "Eugene Ware <eugene@noblesamurai.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/eugeneware/s3-tail-stream/issues"
+  },
+  "dependencies": {
+    "async": "^1.5.1",
+    "aws-sdk": "^2.2.26",
+    "through2": "^2.0.0"
+  },
+  "devDependencies": {
+    "moment": "^2.11.0",
+    "split2": "^1.1.0",
+    "streamlined": "^0.8.0",
+    "tape": "~2.3.2"
+  }
+}
