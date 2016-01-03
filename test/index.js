@@ -18,7 +18,6 @@ var auth = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 };
-console.log(auth);
 
 it('should be able to stream all the objects', function(t) {
   t.plan(24);
