@@ -2,6 +2,7 @@ var it = require('tape'),
     split = require('split2'),
     s3TailStream = require('..'),
     util = require('util'),
+    zlib = require('zlib'),
     sl = require('streamlined');
 
 // The timestamps of the files in the test bucket
@@ -174,6 +175,43 @@ it('should be able to retry and tail', function(t) {
       t.equal(buckets, 0, 'right number of buckets');
       t.equal(lines, 0, 'right number of lines');
       t.equal(retries, 2, 'retried twice');
+      t.end();
+    });
+});
+
+it('should be able to stream compressed objects', function(t) {
+  t.plan(24);
+
+  var buckets = 0;
+  var lines = 0;
+
+  var opts = {
+    auth: auth,
+    query: {
+      Bucket: 's3-tail-stream',
+      Prefix: 'compressedlogs/'
+    },
+    uncompress: zlib.createGunzip
+  };
+  s3TailStream(opts)
+    .on('error', function (err) {
+      t.error(err, 'should not be an error');
+    })
+    .on('s3-object', function (obj) {
+      buckets++;
+      t.equal(obj.Bucket, 's3-tail-stream', 'correct bucket');
+      t.equal(obj.Key, 'compressedlogs/' + buckets + '.txt.gz', 'correct key');
+    })
+    .pipe(split())
+    .pipe(sl.map(commaSplit))
+    .on('data', function (data) {
+      lines++;
+      t.ok(Array.isArray(data), 'is an array');
+      t.deepEqual(data, [String(lines), 'Line ' + lines]);
+    })
+    .on('end', function () {
+      t.equal(buckets, 3, 'right number of buckets');
+      t.equal(lines, 8, 'right number of lines');
       t.end();
     });
 });

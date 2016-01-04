@@ -34,9 +34,12 @@ function s3Stream(opts) {
     // Notify what object we are object, can help with resuming
     r.emit('s3-object', params);
 
-    s3.getObject(params).createReadStream()
-    .once('end', cb)
-    .once('error', cb)
+    var rs = s3.getObject(params).createReadStream();
+    if (typeof opts.uncompress === 'function') {
+      rs = rs.pipe(opts.uncompress());
+    }
+    rs.once('end', cb)
+      .once('error', cb)
     .pipe(through2(function (chunk, enc, cb) {
       keepPushing = r.push(chunk);
       cb();

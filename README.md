@@ -29,9 +29,9 @@ This module is installed via npm:
 $ npm install s3-tail-stream
 ```
 
-## Example Usage
+## Example Usage - Tail and poll
 
-Tail all the logs older than 14 days, and poll every
+Tail all the logs older than 14 days, and poll every minute for new files
 
 ``` js
 var s3TailStream = require('s3-tail-stream'),
@@ -78,6 +78,59 @@ s3TailStream(opts)
 });
 ```
 
+## Example Usage - Process compressed files
+
+This is the same as the previous example but the files are gzipped, so
+an uncompression function is provided:
+
+``` js
+var s3TailStream = require('s3-tail-stream'),
+    moment = require('moment'),
+    zlib = require('zlib');
+
+// Search for log files older than 14 days
+var fromDate = moment().subtract(14, 'days').toDate();
+
+var opts = {
+  // S3 credentials
+  auth: {
+    accessKeyId: 'Your S3 ID',
+    secretAccessKey: 'Your S3 Key'
+  },
+  query: {
+    // S3 bucket name
+    Bucket: 's3-tail-stream',
+    // Object prefix (eg. folder prefix)
+    Prefix: 'compressedlogs/',
+    // log files older than 14 days
+    from: fromDate
+  },
+  // keep polling after 60 seconds for new files that match criteria
+  retry: 60*1000,
+  // Transform stream to do the uncompression
+  uncompress: zlib.createGunzip
+};
+s3TailStream(opts)
+  .pipe(process.stdout);
+
+// Returns the contents of all 3 files in order. The first 3 lines are from the
+// first file, the next 3 lines are from the second files, and the last 2 lines
+// are from the last file.
+// Also, this program will keep polling every 60 seconds so if a new file gets
+// added, the contents will stream out.
+/**
+1,Line 1
+2,Line 2
+3,Line 3
+4,Line 4
+5,Line 5
+6,Line 6
+7,Line 7
+8,Line 8
+**/
+});
+```
+
 ## API
 
 ### s3TailStream(opts)
@@ -102,6 +155,9 @@ objects that match the query.
     match the query. Leave this, or set this to `null` to have the stream
     end when it runs out of files. NB: Setting this too low may cause API
     rate limiing issues.
+  * `uncompress` (optional) - If the objects are uncompressed, then provide a
+    function which when called will create a `Transform` stream to do the
+    uncompression (eg. `zlib.createGunzip`)
 
 ### Events
 
