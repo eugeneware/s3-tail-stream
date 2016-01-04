@@ -60,7 +60,9 @@ function s3Stream(opts) {
       async.eachSeries(data.Contents,
         function (entry, cb) {
           nextMarker = entry.Key;
-          if (entry.LastModified >= opts.query.from && entry.Key !== marker) {
+          var isFolder = entry.Key.match(/_\$folder\$$/);
+          if (!isFolder && entry.LastModified >= opts.query.from &&
+              entry.Key !== marker) {
             streamObject(entry.Key, cb);
           } else {
             cb();
