@@ -1,6 +1,6 @@
 {
   "name": "s3-tail-stream",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Tail all the objects in an S3 bucket for log processing",
   "main": "index.js",
   "scripts": {
